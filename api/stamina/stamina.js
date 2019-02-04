@@ -41,4 +41,4 @@ app.post('/stamina/', async(req, res, next) => {
   const method = 'open';
 
 
-})
+});
