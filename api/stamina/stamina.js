@@ -1,33 +1,24 @@
-const http = require("http");
 const path = require("path");
 const fs = require("fs");
 const express = require("express");
 const _ = require('lodash');
-
 const Tx = require("ethereumjs-tx");
 
 const BigNumber = require("bignumber.js")
 const Web3 = require("web3");
 const httpProviderUrl = "http://127.0.0.1:8547";
-const wsProviderUrl = "ws://127.0.0.1:8546";
-// const wsProvider = new Web3.providers.WebsocketProvider(wsProviderUrl);
 
 const web3 = new Web3(new Web3.providers.HttpProvider(httpProviderUrl));
-const ether = n => new BigNumber(n * 1e18);
+
+const abiPath = path.join(__dirname, '..', '..', 'build', 'contracts', 'Stamina.json');
+const abi = JSON.parse(fs.readFileSync(abiPath).toString()).abi;
+const contract_address = "0x000000000000000000000000000000000000dead";
+const contract = new web3.eth.Contract(abi, contract_address);
 
 const app = express();
 app.use(express.json());
 
 app.post('/api/stamina/:method', async(req, res, next) => {
-  const abiPath = path.join(__dirname, '..', '..', 'build', 'contracts', 'Stamina.json');
-  const abi = JSON.parse(fs.readFileSync(abiPath).toString()).abi;
-
-  const contract_address = "0x000000000000000000000000000000000000dead";
-  const contract = new web3.eth.Contract(abi, contract_address);
-
-  // const from = "0x575f4B87A995b06cfD2A7D9370D1Fb2bc710fdc9";
-  // const delegator = "0x16Fb96a5fa0427Af0C8F7cF1eB4870231c8154B6";
-  // const from = "0x16Fb96a5fa0427Af0C8F7cF1eB4870231c8154B6";
   const privateKey = new Buffer('3b5cb209361b6457e068e7abdccbcc1d88e1e82d73074434f117d3bb4eab0481', 'hex');
 
   let nonce;
@@ -40,7 +31,6 @@ app.post('/api/stamina/:method', async(req, res, next) => {
     });
   }
   
-  let params = {};
   const method = req.params.method;
 
   let bytecode;
@@ -58,15 +48,11 @@ app.post('/api/stamina/:method', async(req, res, next) => {
   } else {
     value = 0;
   }
-  // const value = web3.utils.soliditySha3(ether(1))
-  // console.log(value);
-  // const value = new Buffer("1000000000000000", 'hex');
+  
   if (!_.isUndefined(req.body.params)) params = Object.values(req.body.params);
-  let gas;
   
   const rawTx = {
     nonce: nonce,
-    chainId: await web3.eth.net.getId(),
     to: contract_address,
     value: value,
     data: bytecode,
@@ -104,12 +90,6 @@ app.post('/api/stamina/:method', async(req, res, next) => {
 
 // getter
 app.get('/api/stamina/:method/', async(req, res, next) => {
-  const abiPath = path.join(__dirname, '..', '..', 'build', 'contracts', 'Stamina.json');
-  const abi = JSON.parse(fs.readFileSync(abiPath).toString()).abi;
-
-  const contract_address = "0x000000000000000000000000000000000000dead";
-  const contract = new web3.eth.Contract(abi, contract_address);
-
   const method = req.params.method;
   
   try {
@@ -128,12 +108,6 @@ app.get('/api/stamina/:method/', async(req, res, next) => {
 });
 
 app.get('/api/stamina/:method/:address', async(req, res, next) => {
-  const abiPath = path.join(__dirname, '..', '..', 'build', 'contracts', 'Stamina.json');
-  const abi = JSON.parse(fs.readFileSync(abiPath).toString()).abi;
-
-  const contract_address = "0x000000000000000000000000000000000000dead";
-  const contract = new web3.eth.Contract(abi, contract_address);
-
   const method = req.params.method;
   const address = req.params.address;
   
@@ -153,12 +127,6 @@ app.get('/api/stamina/:method/:address', async(req, res, next) => {
 });
 
 app.get('/api/stamina/:method/:firstParameter/:secondParameter', async(req, res, next) => {
-  const abiPath = path.join(__dirname, '..', '..', 'build', 'contracts', 'Stamina.json');
-  const abi = JSON.parse(fs.readFileSync(abiPath).toString()).abi;
-
-  const contract_address = "0x000000000000000000000000000000000000dead";
-  const contract = new web3.eth.Contract(abi, contract_address);
-
   const method = req.params.method;
   const f_parameter = req.params.firstParameter;
   const s_parameter = req.params.secondParameter;
@@ -196,7 +164,6 @@ function getBytecode(web3, abi, methodName, params) {
   for (let i = 0; i < method.inputs.length; i++) {
     types.push(method.inputs[i].type);
   }
-  
   const values = Object.values(params);
 
   for (let i = 0; i < values.length; i ++){
@@ -204,7 +171,6 @@ function getBytecode(web3, abi, methodName, params) {
       values[i] = new web3.eth.utils.toBN(values[i]).toString()
     }
   }
-  
   const encodeParamters = web3.eth.abi.encodeParameters(types, values).slice(2);
   
   const bytecode = functionSelector.concat(encodeParamters);
