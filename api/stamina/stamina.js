@@ -54,29 +54,25 @@ app.post('/api/stamina/:method', async(req, res, next) => {
       message: err.message,
     });
   }
+  let value;
+  if (!_.isUndefined(req.body.msg.value) ){
+    value = req.body.msg.value
+  } else {
+    value = 0;
+  }
   // const value = web3.utils.soliditySha3(ether(1))
   // console.log(value);
   // const value = new Buffer("1000000000000000", 'hex');
   if (!_.isUndefined(req.body.params)) params = Object.values(req.body.params);
   let gas;
-  console.log(req.body.msg.from)
-  // try{
-  //   gas = await contract.methods[method](...params).estimateGas({from:req.body.msg.from});
-  //   // const result = await contract.methods.addStamina("0x575f4B87A995b06cfD2A7D9370D1Fb2bc710fdc9",value).send({ from: "0x3e37e68230bd4da3fe670fe10b44ffd16c36735e",gas:2e6 });
-  // } catch (err) {
-  //   return res.status(400).json({
-  //     code: 3,
-  //     message: err.message,
-  //   });
-  // }
+  
   const rawTx = {
     nonce: nonce,
     chainId: await web3.eth.net.getId(),
     to: contract_address,
-    value:'1e18',
+    value: value,
     data: bytecode,
     gasPrice: '22e9',
-    // gas: parseInt(gas * 1.2),
     gasLimit: 4700000
   };
 
@@ -152,7 +148,7 @@ app.post('/api/stamina/init', async(req, res, next) => {
 });
 
 // getter
-app.get('/api/stamina/:method', async(req, res, next) => {
+app.get('/api/stamina/:method/:address', async(req, res, next) => {
   const abiPath = path.join(__dirname, '..', '..', 'build', 'contracts', 'Stamina.json');
   const abi = JSON.parse(fs.readFileSync(abiPath).toString()).abi;
 
