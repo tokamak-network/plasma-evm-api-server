@@ -59,14 +59,15 @@ method | 호출 할 메소드 명 | "init"
 
 Parameter |  Description | Example
 --------- |  ----------- | -----------
-params | init 파라미터 | ['1e17', 10, 30]
-params.minDeposit |  최소 예치량 | '1e17'
-params.recoveryEpoch |  회복 주기 | '10'
-params.withdrawalDelay |  인출 기간 | '30'
+params | init 파라미터 | ["0xf4d7a55902dcc473c23696577a04156a6c83b2d3509dfbfb3c07304b8012257f", 10, 30]
+params.minDeposit |  최소 예치량 | "0xf4d7a55902dcc473c23696577a04156a6c83b2d3509dfbfb3c07304b8012257f"
+params.recoveryEpoch |  회복 주기 | 10
+params.withdrawalDelay |  인출 기간 | 30
 msg | msg 파라미터 | ['0x491c9a23db85623eed455a8efdd6aba9b911c5df']
 msg.from |  owner 계정 | '0x491c9a23db85623eed455a8efdd6aba9b911c5df'
 msg.gas | gas비 | '2e6'
 
+minDeposit에 1e17이나 100000000000000000과 같은 값을 넣으면 에러 발생, web3.utils.soliditySha3(ether(0.1))을 통해 나온 값인 0xf4d7a55902dcc473c23696577a04156a6c83b2d3509dfbfb3c07304b8012257f을 넣어줘야 함
 
 ### Response Parameters
 
@@ -254,123 +255,6 @@ params.to |  Delegatee 주소(수수료 대납 계정) | '0x575f4B87A995b06cfD2A
 params.amount | 인출할 금액 | '1e18'
 msg | msg 파라미터 | ['0x491c9a23db85623eed455a8efdd6aba9b911c5df']
 msg.from |  Delegatee에 예치된 스태미나를 되찾을 계정 | '0x491c9a23db85623eed455a8efdd6aba9b911c5df'
-
-### Response Parameters
-
-Parameter |  Description | Example
---------- |  ----------- | -----------
-txhash | transaction id | "0xcff7a350908f2401bb91bd9f0b5fc572fce0e5de0e3c3eaa3b9556e41453afb3"
-
-<!-- <aside class="success">
-Tx
-</aside> -->
-
-
-## addStamina
-// 보류
-```shell
-curl "/api/stamina/<method>"
-  -X POST
-  -H "Content-Type: application/json; charset=utf-8"
-  -d "{
-        'from': <address>
-        'params' : {
-          'to': <address>,
-          'value': <String>
-         }
-      }"
-```
-
-> 위의 명령은 아래의 JSON 객체를 리턴한다:
-
-```json
-{
-  "code": "<Error_Code>",
-  "message": "<String>",
-  "response":
-    {
-      "txhash" : "<String>"
-    }  
-}
-```
-
-### HTTP Request
-
-`POST /api/stamina/<method>`
-
-### URL Parameters
-
-Parameter |  Description | Example
---------- |  ----------- | -----------
-method | 호출 할 함수명 | "addStamina"
-
-### Query Parameters
-
-Parameter |  Description | Example
---------- |  ----------- | -----------
-params | addStamina 파라미터 | ['0x575f4B87A995b06cfD2A7D9370D1Fb2bc710fdc9','1e18']
-params.to |  Delegatee 주소 | '0x575f4B87A995b06cfD2A7D9370D1Fb2bc710fdc9'
-params.value | 추가로 예치할 금액 | '1e18'
-msg | msg 파라미터 | ['0x491c9a23db85623eed455a8efdd6aba9b911c5df']
-msg.from |  Delegatee에 스태미나를 추가 할 계정 | '0x491c9a23db85623eed455a8efdd6aba9b911c5df'
-
-### Response Parameters
-
-Parameter |  Description | Example
---------- |  ----------- | -----------
-txhash | transaction id | "0xcff7a350908f2401bb91bd9f0b5fc572fce0e5de0e3c3eaa3b9556e41453afb3"
-
-<!-- <aside class="success">
-Tx
-</aside> -->
-
-
-## subtractStamina
-// 보류
-```shell
-curl "/api/stamina/<method>"
-  -X POST
-  -H "Content-Type: application/json; charset=utf-8"
-  -d "{
-        'from': <address>
-        'params' : {
-          'to': <address>,
-          'value': <String>
-         }
-      }"
-```
-
-> 위의 명령은 아래의 JSON 객체를 리턴한다:
-
-```json
-{
-  "code": "<Error_Code>",
-  "message": "<String>",
-  "response":
-    {
-      "txhash" : "<String>"
-    }  
-}
-```
-
-### HTTP Request
-
-`POST /api/stamina/<method>`
-
-### URL Parameters
-
-Parameter |  Description | Example
---------- |  ----------- | -----------
-method | 호출 할 함수명 | "subtractStamina"
-
-### Query Parameters
-
-Parameter |  Description | Example
---------- |  ----------- | -----------
-from |  Delegatee에 스태미나를 추가 할 계정 | '0x491c9a23db85623eed455a8efdd6aba9b911c5df'
-params | deposit 파라미터 | ['0x575f4B87A995b06cfD2A7D9370D1Fb2bc710fdc9','1e18']
-params.to |  Delegatee 주소 | '0x575f4B87A995b06cfD2A7D9370D1Fb2bc710fdc9'
-params.value | 추가로 예치할 금액 | '1e18'
 
 ### Response Parameters
 
