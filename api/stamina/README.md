@@ -19,11 +19,14 @@ curl "/api/stamina/<method>"
   -X POST
   -H "Content-Type: application/json; charset=utf-8"
   -d "{
-        'from' : '<address>', 
-        'params' : {
-          'minDeposit' : '<String>',
+        'params': {
+          'minDeposit': '<String>',
           'recoveryEpoch': '<String>',
           'withdrawalDelay': '<String>',
+        },
+        'msg':{
+          'from': '<address>',
+          'gas': <String> 
         }
       }"
 ```
@@ -56,11 +59,13 @@ method | 호출 할 메소드 명 | "init"
 
 Parameter |  Description | Example
 --------- |  ----------- | -----------
-from |  owner 계정 | '0x491c9a23db85623eed455a8efdd6aba9b911c5df'
 params | init 파라미터 | ['1e17', 10, 30]
 params.minDeposit |  최소 예치량 | '1e17'
 params.recoveryEpoch |  회복 주기 | '10'
 params.withdrawalDelay |  인출 기간 | '30'
+msg | msg 파라미터 | ['0x491c9a23db85623eed455a8efdd6aba9b911c5df']
+msg.from |  owner 계정 | '0x491c9a23db85623eed455a8efdd6aba9b911c5df'
+msg.gas | gas비 | '2e6'
 
 
 ### Response Parameters
@@ -84,9 +89,11 @@ curl "/api/stamina/<method>"
   -X POST
   -H "Content-Type: application/json; charset=utf-8"
   -d "{
-        'from' : '<address>',
-        'params' : {
+        'params': {
           'to': '<address>',
+        },
+        'msg': {
+          'from': '<address>',
         }
       }"
 ```
@@ -119,9 +126,10 @@ method | 호출 할 메소드 명 | "setDelegator"
 
 Parameter |  Description | Example
 --------- |  ----------- | -----------
-from |  Delegatee(수수료 수임 계정) | '0x491c9a23db85623eed455a8efdd6aba9b911c5df'
 params | setDelegator 파라미터 | ['0x575f4B87A995b06cfD2A7D9370D1Fb2bc710fdc9']
 params.to |  Delegator 주소(수수료 위임을 받을 계정) | '0x575f4B87A995b06cfD2A7D9370D1Fb2bc710fdc9'
+msg | Delegatee 파라미터 | ['0x491c9a23db85623eed455a8efdd6aba9b911c5df']
+msg.from |  Delegatee(수수료 수임 계정) | '0x491c9a23db85623eed455a8efdd6aba9b911c5df'
 
 
 ### Response Parameters
@@ -138,16 +146,18 @@ Tx
 
 
 ## Deposit
-
+수수료를 대납할 때 사용될 금액을 delegatee에 예치시키는 과정
 ```shell
 curl "/api/stamina/<method>"
   -X POST
   -H "Content-Type: application/json; charset=utf-8"
   -d "{
-        'from': <address>
         'params' : {
-          'to': <address>,
-          'value': <String>
+          'to': <address>
+         },
+         'msg': {
+           'from': <address>,
+           'value': <String>
          }
       }"
 ```
@@ -179,10 +189,11 @@ method | 호출 할 함수명 | "deposit"
 
 Parameter |  Description | Example
 --------- |  ----------- | -----------
-from |  Delegatee에 스태미나를 예치시킬 계정 | '0x491c9a23db85623eed455a8efdd6aba9b911c5df'
-params | deposit 파라미터 | ['0x575f4B87A995b06cfD2A7D9370D1Fb2bc710fdc9','1e18']
+params | deposit 파라미터 | ['0x575f4B87A995b06cfD2A7D9370D1Fb2bc710fdc9']
 params.to |  Delegatee 주소(수수료 대납 계정) | '0x575f4B87A995b06cfD2A7D9370D1Fb2bc710fdc9'
-params.value | 스태미나로 예치할 금액의 양 | '1e18'
+msg | msg 파라미터 | ['0x491c9a23db85623eed455a8efdd6aba9b911c5df','1e18']
+msg.from |  Delegatee에 스태미나를 예치시킬 계정 | '0x491c9a23db85623eed455a8efdd6aba9b911c5df'
+msg.value | 스태미나로 예치할 금액의 양 | '1e18'
 
 ### Response Parameters
 
@@ -201,10 +212,12 @@ curl "/api/stamina/<method>"
   -X POST
   -H "Content-Type: application/json; charset=utf-8"
   -d "{
-        'from': <address>
-        'params' : {
+        'params': {
           'to': <address>,
           'value': <String>
+         },
+         'msg': {
+           'from': <address>
          }
       }"
 ```
@@ -236,10 +249,11 @@ method | 호출 할 함수명 | "withdrawalRequest"
 
 Parameter |  Description | Example
 --------- |  ----------- | -----------
-from |  Delegatee에 예치된 스태미나를 되찾을 계정 | '0x491c9a23db85623eed455a8efdd6aba9b911c5df'
 params | deposit 파라미터 | ['0x575f4B87A995b06cfD2A7D9370D1Fb2bc710fdc9','1e18']
 params.to |  Delegatee 주소(수수료 대납 계정) | '0x575f4B87A995b06cfD2A7D9370D1Fb2bc710fdc9'
 params.amount | 인출할 금액 | '1e18'
+msg | msg 파라미터 | ['0x491c9a23db85623eed455a8efdd6aba9b911c5df']
+msg.from |  Delegatee에 예치된 스태미나를 되찾을 계정 | '0x491c9a23db85623eed455a8efdd6aba9b911c5df'
 
 ### Response Parameters
 
@@ -294,10 +308,11 @@ method | 호출 할 함수명 | "addStamina"
 
 Parameter |  Description | Example
 --------- |  ----------- | -----------
-from |  Delegatee에 스태미나를 추가 할 계정 | '0x491c9a23db85623eed455a8efdd6aba9b911c5df'
-params | deposit 파라미터 | ['0x575f4B87A995b06cfD2A7D9370D1Fb2bc710fdc9','1e18']
+params | addStamina 파라미터 | ['0x575f4B87A995b06cfD2A7D9370D1Fb2bc710fdc9','1e18']
 params.to |  Delegatee 주소 | '0x575f4B87A995b06cfD2A7D9370D1Fb2bc710fdc9'
 params.value | 추가로 예치할 금액 | '1e18'
+msg | msg 파라미터 | ['0x491c9a23db85623eed455a8efdd6aba9b911c5df']
+msg.from |  Delegatee에 스태미나를 추가 할 계정 | '0x491c9a23db85623eed455a8efdd6aba9b911c5df'
 
 ### Response Parameters
 
