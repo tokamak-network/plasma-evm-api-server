@@ -59,15 +59,14 @@ method | 호출 할 메소드 명 | "init"
 
 Parameter |  Description | Example
 --------- |  ----------- | -----------
-params | init 파라미터 | ["0xf4d7a55902dcc473c23696577a04156a6c83b2d3509dfbfb3c07304b8012257f", 10, 30]
-params.minDeposit |  최소 예치량 | "0xf4d7a55902dcc473c23696577a04156a6c83b2d3509dfbfb3c07304b8012257f"
+params | init 파라미터 | [1e17, 10, 30]
+params.minDeposit |  최소 예치량 | 1e17
 params.recoveryEpoch |  회복 주기 | 10
 params.withdrawalDelay |  인출 기간 | 30
 msg | msg 파라미터 | ['0x491c9a23db85623eed455a8efdd6aba9b911c5df']
 msg.from |  owner 계정 | '0x491c9a23db85623eed455a8efdd6aba9b911c5df'
 msg.gas | gas비 | '2e6'
 
-minDeposit에 1e17이나 100000000000000000과 같은 값을 넣으면 에러 발생, web3.utils.soliditySha3(ether(0.1))을 통해 나온 값인 0xf4d7a55902dcc473c23696577a04156a6c83b2d3509dfbfb3c07304b8012257f을 넣어줘야 함
 
 ### Response Parameters
 
@@ -220,7 +219,7 @@ curl "/api/stamina/<method>"
          'msg': {
            'from': <address>
          }
-      }"
+      }" req.body.msg.from
 ```
 
 > 위의 명령은 아래의 JSON 객체를 리턴한다:

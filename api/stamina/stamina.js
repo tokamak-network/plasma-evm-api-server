@@ -44,10 +44,8 @@ app.post('/api/stamina/:method', async(req, res, next) => {
   const method = req.params.method;
 
   let bytecode;
-  
   try{
     bytecode = getBytecode(web3, abi, method, req.body.params);
-    
   } catch(err) {
     return res.status(400).json({
       code: 2,
@@ -102,52 +100,33 @@ app.post('/api/stamina/:method', async(req, res, next) => {
       message: err.message,
     });
   }
-
 });
 
-app.post('/api/stamina/init', async(req, res, next) => {
+// getter
+app.get('/api/stamina/:method/', async(req, res, next) => {
   const abiPath = path.join(__dirname, '..', '..', 'build', 'contracts', 'Stamina.json');
   const abi = JSON.parse(fs.readFileSync(abiPath).toString()).abi;
 
   const contract_address = "0x000000000000000000000000000000000000dead";
   const contract = new web3.eth.Contract(abi, contract_address);
 
-  const privateKey = new Buffer('3b5cb209361b6457e068e7abdccbcc1d88e1e82d73074434f117d3bb4eab0481', 'hex');
-
-  let nonce;
+  const method = req.params.method;
+  
   try {
-    nonce = await web3.eth.getTransactionCount(from);
+    result = await contract.methods[method]().call();
+    return res.status(200).json({
+      code: 0,
+      message: 'success',
+      response: result
+    })
   } catch (err) {
     return res.status(400).json({
       code: 1,
       message: err.message,
     });
-  }
-  
-  let params = {};
-  const method = req.params.method;
-
-  let bytecode;
-  
-  // const value = web3.utils.soliditySha3(ether(1))
-  // console.log(value);
-  // const value = new Buffer("1000000000000000", 'hex');
-  if (!_.isUndefined(req.body.params)) params = Object.values(req.body.params);
-
-  try{
-    const result = await contract.methods[method](...params).estimateGas(req.body.msg);
-    // const result = await contract.methods.addStamina("0x575f4B87A995b06cfD2A7D9370D1Fb2bc710fdc9",value).send({ from: "0x3e37e68230bd4da3fe670fe10b44ffd16c36735e",gas:2e6 });
-  } catch (err) {
-    return res.status(400).json({
-      code: 3,
-      message: err.message,
-    });
-  }
-  
-  
+  }  
 });
 
-// getter
 app.get('/api/stamina/:method/:address', async(req, res, next) => {
   const abiPath = path.join(__dirname, '..', '..', 'build', 'contracts', 'Stamina.json');
   const abi = JSON.parse(fs.readFileSync(abiPath).toString()).abi;
@@ -160,6 +139,32 @@ app.get('/api/stamina/:method/:address', async(req, res, next) => {
   
   try {
     result = await contract.methods[method](address).call();
+    return res.status(200).json({
+      code: 0,
+      message: 'success',
+      response: result
+    })
+  } catch (err) {
+    return res.status(400).json({
+      code: 1,
+      message: err.message,
+    });
+  }  
+});
+
+app.get('/api/stamina/:method/:firstParameter/:secondParameter', async(req, res, next) => {
+  const abiPath = path.join(__dirname, '..', '..', 'build', 'contracts', 'Stamina.json');
+  const abi = JSON.parse(fs.readFileSync(abiPath).toString()).abi;
+
+  const contract_address = "0x000000000000000000000000000000000000dead";
+  const contract = new web3.eth.Contract(abi, contract_address);
+
+  const method = req.params.method;
+  const f_parameter = req.params.firstParameter;
+  const s_parameter = req.params.secondParameter;
+  
+  try {
+    result = await contract.methods[method](f_parameter, s_parameter).call();
     return res.status(200).json({
       code: 0,
       message: 'success',
@@ -193,8 +198,15 @@ function getBytecode(web3, abi, methodName, params) {
   }
   
   const values = Object.values(params);
+
+  for (let i = 0; i < values.length; i ++){
+    if (types[i] == 'uint256'){
+      values[i] = new web3.eth.utils.toBN(values[i]).toString()
+    }
+  }
   
   const encodeParamters = web3.eth.abi.encodeParameters(types, values).slice(2);
+  
   const bytecode = functionSelector.concat(encodeParamters);
   return bytecode;
 }
