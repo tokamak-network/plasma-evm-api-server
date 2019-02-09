@@ -106,6 +106,10 @@ contract RootChain is RootChainStorage, RootChainEvent {
     return true;
   }
 
+  function getBalanceTrieKey(address who) public pure returns (bytes32) {
+    return keccak256(bytes32(who), bytes32(2));
+  }
+
   function getNumEROs() external view returns (uint) {
     return EROs.length;
   }
