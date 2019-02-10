@@ -3,12 +3,12 @@
 관리자는 토큰 스왑 / 원아이디 입력 / 수정 등의 권한을 가지고 있다.
 관리자의 키는 API 서버에서 관리된다.
 
-- [init](https://github.com/Onther-Tech/plasma-evm-api/blob/master/api/stamina/README.md#init)
-- [Delegator 지정](https://github.com/Onther-Tech/plasma-evm-api/tree/master/api/stamina#delegator-%EC%A7%80%EC%A0%95)
-- [Deposit](https://github.com/Onther-Tech/plasma-evm-api/blob/master/api/stamina/README.md#deposit)
-- [addStamina](https://github.com/Onther-Tech/plasma-evm-api/blob/master/api/stamina/README.md#addStamina)
-- [Delegatee확인](https://github.com/Onther-Tech/plasma-evm-api/blob/master/api/stamina/README.md#getDelegatee)
-- [Stamina 잔량 확인](https://github.com/Onther-Tech/plasma-evm-api/blob/master/api/stamina/README.md#getStamina)
+- [init](https://github.com/Onther-Tech/plasma-evm-api-server/blob/master/api/stamina/README.md#init)
+- [Delegator 지정](https://github.com/Onther-Tech/plasma-evm-api-server/tree/master/api/stamina#delegator-%EC%A7%80%EC%A0%95)
+- [Deposit](https://github.com/Onther-Tech/plasma-evm-api-server/blob/master/api/stamina/README.md#deposit)
+- [addStamina](https://github.com/Onther-Tech/plasma-evm-api-server/blob/master/api/stamina/README.md#addStamina)
+- [Delegatee확인](https://github.com/Onther-Tech/plasma-evm-api-server/blob/master/api/stamina/README.md#getDelegatee)
+- [Stamina 잔량 확인](https://github.com/Onther-Tech/plasma-evm-api-server/blob/master/api/stamina/README.md#getStamina)
 
 
 ## init
