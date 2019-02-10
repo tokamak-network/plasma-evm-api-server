@@ -14,11 +14,11 @@ const wsProvider = new Web3.providers.WebsocketProvider(wsProviderUrl);
 const web3 = new Web3(new Web3.providers.HttpProvider(httpProviderUrl));
 
 // Initial Parameters, Should replace or Other way.
-const privateKey = new Buffer('', 'hex');
+const privateKey = new Buffer('', 'hex'); // Should Insert Private-Key it for test
 const rootchainAddr = '0x880ec53af800b5cd051531672ef4fc4de233bd5d'
 
-// Abi files should Exist `plasma-evm-api-server/build/contracts'
-// If no exist, Have to compile
+// Abi files should Exist under `plasma-evm-api-server/build/contracts'
+// If no exist, Have to compile through truffle.
 const rootchainAbiPath = path.join(__dirname, '..', '..', 'build', 'contracts', 'RootChain.json');
 const rootchainAbi = JSON.parse(fs.readFileSync(rootchainAbiPath).toString()).abi;
 const rootchainContract = new web3.eth.Contract(rootchainAbi, rootchainAddr);
@@ -58,7 +58,7 @@ app.post('/api/rootchain/:method', async(req, res, next) => {
   }
 
   if (!_.isUndefined(req.body.params)) params = Object.values(req.body.params);
-  console.log(params)
+  // console.log(params)
 
   const rawTx = {
     nonce: nonce,
