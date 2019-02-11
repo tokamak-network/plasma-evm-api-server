@@ -4,6 +4,10 @@ const express = require("express");
 const _ = require('lodash');
 const Tx = require("ethereumjs-tx");
 
+<<<<<<< HEAD
+=======
+const BigNumber = require("bignumber.js")
+>>>>>>> fecb4e4c9221435e29c12f3013f86c519e81fec2
 const Web3 = require("web3");
 const httpProviderUrl = "http://127.0.0.1:8547";
 
@@ -36,6 +40,8 @@ app.post('/api/stamina/:method', async(req, res, next) => {
   try{
     bytecode = getBytecode(web3, abi, method, req.body.params);
   } catch(err) {
+<<<<<<< HEAD
+=======
     return res.status(400).json({
       code: 2,
       message: err.message,
@@ -87,6 +93,81 @@ app.post('/api/stamina/:method', async(req, res, next) => {
   }
 });
 
+// getter
+app.get('/api/stamina/:method/', async(req, res, next) => {
+  const method = req.params.method;
+  
+  try {
+    result = await contract.methods[method]().call();
+    return res.status(200).json({
+      code: 0,
+      message: 'success',
+      response: result
+    })
+  } catch (err) {
+>>>>>>> fecb4e4c9221435e29c12f3013f86c519e81fec2
+    return res.status(400).json({
+      code: 2,
+      message: err.message,
+    });
+<<<<<<< HEAD
+  }
+  let value;
+  if (!_.isUndefined(req.body.msg.value) ){
+    value = req.body.msg.value
+  } else {
+    value = 0;
+  }
+  
+  if (!_.isUndefined(req.body.params)) params = Object.values(req.body.params);
+  
+  const rawTx = {
+    nonce: nonce,
+    to: contract_address,
+    value: value,
+    data: bytecode,
+    gasPrice: '22e9',
+    gasLimit: 4700000
+  };
+
+  const tx = new Tx(rawTx);
+  tx.sign(privateKey);
+  const serializedTx = tx.serialize().toString('hex');
+
+=======
+  }  
+});
+
+app.get('/api/stamina/:method/:address', async(req, res, next) => {
+  const method = req.params.method;
+  const address = req.params.address;
+  
+>>>>>>> fecb4e4c9221435e29c12f3013f86c519e81fec2
+  try {
+    web3.eth.sendSignedTransaction('0x' + serializedTx)
+    .on('receipt', receipt => {
+      return res.status(200).json({
+        code: 0,
+        message: 'success',
+        response: {
+          txhash: receipt.transactionHash,
+        }
+      });
+    }).on('error', error => {
+      return res.status(400).json({
+        code: 5,
+        message: error.message,
+      });
+    });
+  } catch (err) {
+    return res.status(400).json({
+      code: 6,
+      message: err.message,
+    });
+  }
+});
+
+<<<<<<< HEAD
 app.get('/api/stamina/:method', async(req, res, next) => {
   const method = req.params.method;
 
@@ -152,6 +233,27 @@ app.get('/api/stamina/:method', async(req, res, next) => {
   }
 });
 
+=======
+app.get('/api/stamina/:method/:firstParameter/:secondParameter', async(req, res, next) => {
+  const method = req.params.method;
+  const f_parameter = req.params.firstParameter;
+  const s_parameter = req.params.secondParameter;
+  
+  try {
+    result = await contract.methods[method](f_parameter, s_parameter).call();
+    return res.status(200).json({
+      code: 0,
+      message: 'success',
+      response: result
+    })
+  } catch (err) {
+    return res.status(400).json({
+      code: 1,
+      message: err.message,
+    });
+  }  
+});
+>>>>>>> fecb4e4c9221435e29c12f3013f86c519e81fec2
 
 app.listen(8080, async () => {
   console.log("Express listening 8080");
@@ -183,3 +285,11 @@ function getBytecode(web3, abi, methodName, params) {
   const bytecode = functionSelector.concat(encodeParamters);
   return bytecode;
 }
+<<<<<<< HEAD
+=======
+
+async function getValue(web3, contract, name) {
+  const result = await contract.methods[name]().call();
+  return result;
+}
+>>>>>>> fecb4e4c9221435e29c12f3013f86c519e81fec2
