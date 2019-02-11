@@ -4,7 +4,6 @@ const express = require("express");
 const _ = require('lodash');
 const Tx = require("ethereumjs-tx");
 
-const BigNumber = require("bignumber.js")
 const Web3 = require("web3");
 const httpProviderUrl = "http://127.0.0.1:8547";
 
