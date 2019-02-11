@@ -1,26 +1,33 @@
+const http = require("http");
 const path = require("path");
 const fs = require("fs");
 const express = require("express");
 const _ = require('lodash');
 const Tx = require("ethereumjs-tx");
-
-const BigNumber = require("bignumber.js")
 const Web3 = require("web3");
-const httpProviderUrl = "http://127.0.0.1:8547";
+
+// This is Rootchain RPC addresss, not plasma-chain.
+const httpProviderUrl = "http://172.17.0.3:8545";
+const wsProviderUrl = "ws://172.17.0.3:8546";
+const wsProvider = new Web3.providers.WebsocketProvider(wsProviderUrl);
 
 const web3 = new Web3(new Web3.providers.HttpProvider(httpProviderUrl));
 
-const abiPath = path.join(__dirname, '..', '..', 'build', 'contracts', 'Stamina.json');
-const abi = JSON.parse(fs.readFileSync(abiPath).toString()).abi;
-const contract_address = "0x000000000000000000000000000000000000dead";
-const contract = new web3.eth.Contract(abi, contract_address);
+// Initial Parameters, Should replace or Other way.
+const privateKey = new Buffer('', 'hex'); // Should Insert Private-Key it for test
+const rootchainAddr = '0x880ec53af800b5cd051531672ef4fc4de233bd5d'
+
+// Abi files should Exist under `plasma-evm-api-server/build/contracts'
+// If no exist, Have to compile through truffle.
+const rootchainAbiPath = path.join(__dirname, '..', '..', 'build', 'contracts', 'RootChain.json');
+const rootchainAbi = JSON.parse(fs.readFileSync(rootchainAbiPath).toString()).abi;
+const rootchainContract = new web3.eth.Contract(rootchainAbi, rootchainAddr);
 
 const app = express();
-app.use(express.json());
+app.use(express.json())
 
-app.post('/api/stamina/:method', async(req, res, next) => {
-  const privateKey = new Buffer('3b5cb209361b6457e068e7abdccbcc1d88e1e82d73074434f117d3bb4eab0481', 'hex');
-
+app.post('/api/rootchain/:method', async(req, res, next) => {
+  // get Nonce before send Tx
   let nonce;
   try {
     nonce = await web3.eth.getTransactionCount(req.body.msg.from);
@@ -30,35 +37,38 @@ app.post('/api/stamina/:method', async(req, res, next) => {
       message: err.message,
     });
   }
-  
+
   const method = req.params.method;
 
   let bytecode;
   try{
-    bytecode = getBytecode(web3, abi, method, req.body.params);
+    bytecode = getBytecode(web3, rootchainAbi, method, req.body.params);
   } catch(err) {
     return res.status(400).json({
       code: 2,
       message: err.message,
     });
   }
+
   let value;
   if (!_.isUndefined(req.body.msg.value) ){
     value = req.body.msg.value
   } else {
     value = 0;
   }
-  
+
   if (!_.isUndefined(req.body.params)) params = Object.values(req.body.params);
-  
+  // console.log(params)
+
   const rawTx = {
     nonce: nonce,
-    to: contract_address,
+    to: rootchainAddr,
     value: value,
     data: bytecode,
     gasPrice: '22e9',
     gasLimit: 4700000
   };
+
 
   const tx = new Tx(rawTx);
   tx.sign(privateKey);
@@ -88,12 +98,12 @@ app.post('/api/stamina/:method', async(req, res, next) => {
   }
 });
 
-// getter
-app.get('/api/stamina/:method/', async(req, res, next) => {
+
+app.get('/api/rootchain/:method', async(req, res, next) => {
   const method = req.params.method;
-  
+
   try {
-    result = await contract.methods[method]().call();
+    result = await rootchainContract.methods[method].call();
     return res.status(200).json({
       code: 0,
       message: 'success',
@@ -107,12 +117,14 @@ app.get('/api/stamina/:method/', async(req, res, next) => {
   }  
 });
 
-app.get('/api/stamina/:method/:address', async(req, res, next) => {
+
+
+app.get('/api/rootchain/:method/:parameter', async(req, res, next) => {
   const method = req.params.method;
-  const address = req.params.address;
-  
+  const param  = req.params.parameter;
+
   try {
-    result = await contract.methods[method](address).call();
+    result = await rootchainContract.methods[method](param).call();
     return res.status(200).json({
       code: 0,
       message: 'success',
@@ -123,32 +135,14 @@ app.get('/api/stamina/:method/:address', async(req, res, next) => {
       code: 1,
       message: err.message,
     });
-  }  
+  }
 });
 
-app.get('/api/stamina/:method/:firstParameter/:secondParameter', async(req, res, next) => {
-  const method = req.params.method;
-  const f_parameter = req.params.firstParameter;
-  const s_parameter = req.params.secondParameter;
-  
-  try {
-    result = await contract.methods[method](f_parameter, s_parameter).call();
-    return res.status(200).json({
-      code: 0,
-      message: 'success',
-      response: result
-    })
-  } catch (err) {
-    return res.status(400).json({
-      code: 1,
-      message: err.message,
-    });
-  }  
-});
 
 app.listen(8080, async () => {
   console.log("Express listening 8080");
 });
+
 
 function getBytecode(web3, abi, methodName, params) {
   let method;
@@ -172,12 +166,12 @@ function getBytecode(web3, abi, methodName, params) {
     }
   }
   const encodeParamters = web3.eth.abi.encodeParameters(types, values).slice(2);
-  
+
   const bytecode = functionSelector.concat(encodeParamters);
   return bytecode;
 }
 
 async function getValue(web3, contract, name) {
-  const result = await contract.methods[name]().call();
+  const result = await rootchainContract.methods[name]().call();
   return result;
 }
