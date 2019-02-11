@@ -4,10 +4,6 @@ const express = require("express");
 const _ = require('lodash');
 const Tx = require("ethereumjs-tx");
 
-<<<<<<< HEAD
-=======
-const BigNumber = require("bignumber.js")
->>>>>>> fecb4e4c9221435e29c12f3013f86c519e81fec2
 const Web3 = require("web3");
 const httpProviderUrl = "http://127.0.0.1:8547";
 
@@ -21,47 +17,8 @@ const contract = new web3.eth.Contract(abi, contract_address);
 const app = express();
 app.use(express.json());
 
-app.post('/api/stamina/:method', async(req, res, next) => {
+app.post('/api/:signedTx', async(req, res, next) => {
   const privateKey = new Buffer('3b5cb209361b6457e068e7abdccbcc1d88e1e82d73074434f117d3bb4eab0481', 'hex');
-
-  let nonce;
-  try {
-    nonce = await web3.eth.getTransactionCount(req.body.msg.from);
-  } catch (err) {
-    return res.status(400).json({
-      code: 1,
-      message: err.message,
-    });
-  }
-  
-  const method = req.params.method;
-
-  let bytecode;
-  try{
-    bytecode = getBytecode(web3, abi, method, req.body.params);
-  } catch(err) {
-    return res.status(400).json({
-      code: 2,
-      message: err.message,
-    });
-  }
-  let value;
-  if (!_.isUndefined(req.body.msg.value) ){
-    value = req.body.msg.value
-  } else {
-    value = 0;
-  }
-  
-  if (!_.isUndefined(req.body.params)) params = Object.values(req.body.params);
-  
-  const rawTx = {
-    nonce: nonce,
-    to: contract_address,
-    value: value,
-    data: bytecode,
-    gasPrice: '22e9',
-    gasLimit: 4700000
-  };
 
   const tx = new Tx(rawTx);
   tx.sign(privateKey);
@@ -95,10 +52,9 @@ app.get('/api/stamina/:method', async(req, res, next) => {
   const method = req.params.method;
 
   const values = Object.values(req.body.params)
-  const a = await contract.methods[method](...values)
+  const checkMethod = await contract.methods[method](...values)
   
-  
-  if (!_.isUndefined(a.send)){
+  if (!_.isUndefined(checkMethod.send)){ // check the method type
     let nonce;
     try {
       nonce = await web3.eth.getTransactionCount(req.body.msg.from);
@@ -117,7 +73,7 @@ app.get('/api/stamina/:method', async(req, res, next) => {
         message: err.message,
       });
     }
-
+    // if msg.value is not defined, then value is set to 0
     let value;
     if (!_.isUndefined(req.body.msg.value) ){
       value = req.body.msg.value
@@ -133,16 +89,16 @@ app.get('/api/stamina/:method', async(req, res, next) => {
       gasPrice: '22e9',
       gasLimit: 4700000
     };
-    console.log(rawTx)
+    
     return res.status(200).json({
       code: 0,
       message: 'success',
       response: rawTx
     })
 
-  } else {
+  } else { //when contract method is view function
     try {
-      result = await contract.methods[method](...values).call();
+      result = await checkMethod.call();
       return res.status(200).json({
         code: 0,
         message: 'success',
@@ -156,7 +112,6 @@ app.get('/api/stamina/:method', async(req, res, next) => {
     } 
   }
 });
-
 
 app.listen(8080, async () => {
   console.log("Express listening 8080");
@@ -178,6 +133,7 @@ function getBytecode(web3, abi, methodName, params) {
   }
   const values = Object.values(params);
 
+  // convert uint256 value to BN
   for (let i = 0; i < values.length; i ++){
     if (types[i] == 'uint256'){
       values[i] = new web3.eth.utils.toBN(values[i]).toString()
