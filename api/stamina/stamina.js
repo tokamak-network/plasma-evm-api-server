@@ -87,63 +87,71 @@ app.post('/api/stamina/:method', async(req, res, next) => {
   }
 });
 
-// getter
-app.get('/api/stamina/:method/', async(req, res, next) => {
+app.get('/api/stamina/:method', async(req, res, next) => {
   const method = req.params.method;
-  
-  try {
-    result = await contract.methods[method]().call();
-    return res.status(200).json({
-      code: 0,
-      message: 'success',
-      response: result
-    })
-  } catch (err) {
-    return res.status(400).json({
+
+  const values = Object.values(req.body.params)
+  const a = await contract.methods[method](...values)
+  console.log(a.send)
+  let bytecode;
+  if (!_.isUndefined(a.send)){
+    let nonce;
+    try {
+      nonce = await web3.eth.getTransactionCount(req.body.msg.from);
+    } catch (err) {
+      return res.status(400).json({
       code: 1,
       message: err.message,
     });
-  }  
+  }
+    try{
+      bytecode = getBytecode(web3, abi, method, req.body.params);
+    } catch(err) {
+      return res.status(400).json({
+        code: 2,
+        message: err.message,
+      });
+    }
+
+  let value;
+  if (!_.isUndefined(req.body.msg.value) ){
+    value = req.body.msg.value
+  } else {
+    value = 0;
+  }
+
+  const rawTx = {
+    nonce: nonce,
+    to: contract_address,
+    value: value,
+    data: bytecode,
+    gasPrice: '22e9',
+    gasLimit: 4700000
+  };
+  console.log(rawTx)
+  return res.status(200).json({
+    code: 0,
+    message: 'success',
+    response: rawTx
+  })
+
+  } else {
+    try {
+      result = await contract.methods[method](...values).call();
+      return res.status(200).json({
+        code: 0,
+        message: 'success',
+        response: result
+      })
+    } catch (err) {
+      return res.status(400).json({
+        code: 1,
+        message: err.message,
+      });
+    } 
+  }
 });
 
-app.get('/api/stamina/:method/:address', async(req, res, next) => {
-  const method = req.params.method;
-  const address = req.params.address;
-  
-  try {
-    result = await contract.methods[method](address).call();
-    return res.status(200).json({
-      code: 0,
-      message: 'success',
-      response: result
-    })
-  } catch (err) {
-    return res.status(400).json({
-      code: 1,
-      message: err.message,
-    });
-  }  
-});
-
-app.get('/api/stamina/:method/:firstParameter/:secondParameter', async(req, res, next) => {
-  const method = req.params.method;
-  const f_parameter = req.params.firstParameter;
-  const s_parameter = req.params.secondParameter;
-  
-  try {
-    result = await contract.methods[method](f_parameter, s_parameter).call();
-    return res.status(200).json({
-      code: 0,
-      message: 'success',
-      response: result
-    })
-  } catch (err) {
-    return res.status(400).json({
-      code: 1,
-      message: err.message,
-    });
-  }  
-});
 
 app.listen(8080, async () => {
   console.log("Express listening 8080");
@@ -174,9 +182,4 @@ function getBytecode(web3, abi, methodName, params) {
   
   const bytecode = functionSelector.concat(encodeParamters);
   return bytecode;
-}
-
-async function getValue(web3, contract, name) {
-  const result = await contract.methods[name]().call();
-  return result;
 }
