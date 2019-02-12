@@ -65,18 +65,7 @@ Parameter |  Description | Example
 --------- |  ----------- | -----------
 method | 호출 할 함수명 | "startEnter"
 
-### Query Parameters - Ether 전송시
-
-Parameter |  Description | Example
---------- |  ----------- | -----------
-params.isTransfer |  Ether 전송 여부 | true
-params.to |  User Account on ChildChain | '0x491c9a23db85623eed455a8efdd6aba9b911c5df'
-params._trieKey | empty Bytes32 | '0x0000000000000000000000000000000000000000000000000000000000000000'
-params._trieValue | empty Bytes32 | '0x0000000000000000000000000000000000000000000000000000000000000000'
-msg.from | User Account on RootChain | '0x491c9a23db85623eed455a8efdd6aba9b911c5df'
-msg.value | PlasmaChain으로 이동할 금액 | '1e18'
-
-### Query Parameters - Token 전송시
+### Query Parameters
 
 Parameter |  Description | Example
 --------- |  ----------- | -----------
@@ -126,17 +115,7 @@ Parameter |  Description | Example
 --------- |  ----------- | -----------
 method | 호출 할 함수명 | "startExit"
 
-### Query Parameters - Ether 전송시
-
-Parameter |  Description | Example
---------- |  ----------- | -----------
-params._to |  User Account on RootChain | '0x491c9a23db85623eed455a8efdd6aba9b911c5df'
-params._trieKey | empty Bytes32 | '0x0000000000000000000000000000000000000000000000000000000000000000'
-params._trieValue | empty Bytes32 | '0x0000000000000000000000000000000000000000000000000000000000000000'
-msg.from |  User Account on RootChain | '0x491c9a23db85623eed455a8efdd6aba9b911c5df'
-msg.value | 유저가 Exit 요청하는 Ether Amount(cost of ERO 차감됨) | '1e18'
-
-### Query Parameters - Token 전송시
+### Query Parameters
 
 Parameter |  Description | Example
 --------- |  ----------- | -----------
