@@ -14,18 +14,36 @@ const abi = JSON.parse(fs.readFileSync(abiPath).toString()).abi;
 const contract_address = "0x000000000000000000000000000000000000dead";
 const contract = new web3.eth.Contract(abi, contract_address);
 
-const app = express();
+const app = express.Router();
+
 app.use(express.json());
 
-app.post('/api/:signedTx', async(req, res, next) => {
+// example for how to sign the transaction
+app.get('/api/signTx', async(req, res, next) => {
+  // let privateKey;
   const privateKey = new Buffer('3b5cb209361b6457e068e7abdccbcc1d88e1e82d73074434f117d3bb4eab0481', 'hex');
 
+  const rawTx = req.body
+  console.log(rawTx);
+
   const tx = new Tx(rawTx);
-  tx.sign(privateKey);
+  tx.sign(privateKey)
   const serializedTx = tx.serialize().toString('hex');
 
+  return res.status(200).json({
+    code: 0,
+    message: 'success',
+    response: {
+      serializedTx: serializedTx
+    }
+  });
+});
+
+// send signed transaction to blockchain and get transaction hash
+app.post('/api/sendSignedTx/:signedTx', async(req, res, next) => {
+  const signedTx = req.params.signedTx
   try {
-    web3.eth.sendSignedTransaction('0x' + serializedTx)
+    web3.eth.sendSignedTransaction('0x' + signedTx)
     .on('receipt', receipt => {
       return res.status(200).json({
         code: 0,
@@ -47,6 +65,7 @@ app.post('/api/:signedTx', async(req, res, next) => {
     });
   }
 });
+
 
 app.get('/api/stamina/:method', async(req, res, next) => {
   const method = req.params.method;
@@ -73,6 +92,7 @@ app.get('/api/stamina/:method', async(req, res, next) => {
         message: err.message,
       });
     }
+
     // if msg.value is not defined, then value is set to 0
     let value;
     if (!_.isUndefined(req.body.msg.value) ){
@@ -111,10 +131,6 @@ app.get('/api/stamina/:method', async(req, res, next) => {
       });
     } 
   }
-});
-
-app.listen(8080, async () => {
-  console.log("Express listening 8080");
 });
 
 function getBytecode(web3, abi, methodName, params) {

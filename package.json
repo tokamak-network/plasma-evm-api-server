@@ -23,6 +23,9 @@
   },
   "homepage": "https://github.com/Onther-Tech/moscow-stamina#readme",
   "dependencies": {
+    "babel": "^6.23.0",
+    "babel-polyfill": "^6.26.0",
+    "babel-register": "^6.26.0",
     "bignumber.js": "^8.0.2",
     "bluebird": "^3.5.1",
     "body-parser": "^1.18.3",
