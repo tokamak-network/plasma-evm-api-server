@@ -8,13 +8,9 @@ const Web3 = require("web3");
 
 // This is Rootchain RPC addresss, not plasma-chain.
 const httpProviderUrl = "http://172.17.0.3:8545";
-const wsProviderUrl = "ws://172.17.0.3:8546";
-const wsProvider = new Web3.providers.WebsocketProvider(wsProviderUrl);
-
 const web3 = new Web3(new Web3.providers.HttpProvider(httpProviderUrl));
 
-// Initial Parameters, Should replace or Other way.
-const privateKey = new Buffer('', 'hex'); // Should Insert Private-Key it for test
+// Initial Parameters, Should replace or find Other way on client side.
 const rootchainAddr = '0x880ec53af800b5cd051531672ef4fc4de233bd5d'
 
 // Abi files should Exist under `plasma-evm-api-server/build/contracts'
@@ -26,56 +22,32 @@ const rootchainContract = new web3.eth.Contract(rootchainAbi, rootchainAddr);
 const app = express();
 app.use(express.json())
 
-app.post('/api/rootchain/:method', async(req, res, next) => {
-  // get Nonce before send Tx
-  let nonce;
-  try {
-    nonce = await web3.eth.getTransactionCount(req.body.msg.from);
-  } catch (err) {
-    return res.status(400).json({
-      code: 1,
-      message: err.message,
-    });
-  }
+// example for how to sign the transaction
+app.get('/api/signTx', async(req, res, next) => {
+  // let privateKey;
+  const privateKey = new Buffer('3b5cb209361b6457e068e7abdccbcc1d88e1e82d73074434f117d3bb4eab0481', 'hex');
 
-  const method = req.params.method;
-
-  let bytecode;
-  try{
-    bytecode = getBytecode(web3, rootchainAbi, method, req.body.params);
-  } catch(err) {
-    return res.status(400).json({
-      code: 2,
-      message: err.message,
-    });
-  }
-
-  let value;
-  if (!_.isUndefined(req.body.msg.value) ){
-    value = req.body.msg.value
-  } else {
-    value = 0;
-  }
-
-  if (!_.isUndefined(req.body.params)) params = Object.values(req.body.params);
-  // console.log(params)
-
-  const rawTx = {
-    nonce: nonce,
-    to: rootchainAddr,
-    value: value,
-    data: bytecode,
-    gasPrice: '22e9',
-    gasLimit: 4700000
-  };
-
+  const rawTx = req.body
+  console.log(rawTx);
 
   const tx = new Tx(rawTx);
-  tx.sign(privateKey);
+  tx.sign(privateKey)
   const serializedTx = tx.serialize().toString('hex');
 
+  return res.status(200).json({
+    code: 0,
+    message: 'success',
+    response: {
+      serializedTx: serializedTx
+    }
+  });
+});
+
+// send signed transaction to blockchain and get transaction hash
+app.post('/api/sendSignedTx/:signedTx', async(req, res, next) => {
+  const signedTx = req.params.signedTx
   try {
-    web3.eth.sendSignedTransaction('0x' + serializedTx)
+    web3.eth.sendSignedTransaction('0x' + signedTx)
     .on('receipt', receipt => {
       return res.status(200).json({
         code: 0,
@@ -102,42 +74,68 @@ app.post('/api/rootchain/:method', async(req, res, next) => {
 app.get('/api/rootchain/:method', async(req, res, next) => {
   const method = req.params.method;
 
-  try {
-    result = await rootchainContract.methods[method].call();
-    return res.status(200).json({
-      code: 0,
-      message: 'success',
-      response: result
-    })
-  } catch (err) {
-    return res.status(400).json({
+  const values = Object.values(req.body.params)
+  const checkMethod = await contract.methods[method](...values)
+
+  if (!_.isUndefined(checkMethod.send)){ // check the method type
+    let nonce;
+    try {
+      nonce = await web3.eth.getTransactionCount(req.body.msg.from);
+    } catch (err) {
+      return res.status(400).json({
       code: 1,
       message: err.message,
     });
-  }  
-});
+    }
+    let bytecode;
+    try{
+      bytecode = getBytecode(web3, abi, method, req.body.params);
+    } catch(err) {
+      return res.status(400).json({
+        code: 2,
+        message: err.message,
+      });
+    }
 
+    // if msg.value is not defined, then value is set to 0
+    let value;
+    if (!_.isUndefined(req.body.msg.value) ){
+      value = req.body.msg.value
+    } else {
+      value = 0;
+    }
 
+    const rawTx = {
+      nonce: nonce,
+      to: contract_address,
+      value: value,
+      data: bytecode,
+      gasPrice: '22e9',
+      gasLimit: 4700000
+    };
 
-app.get('/api/rootchain/:method/:parameter', async(req, res, next) => {
-  const method = req.params.method;
-  const param  = req.params.parameter;
-
-  try {
-    result = await rootchainContract.methods[method](param).call();
     return res.status(200).json({
       code: 0,
       message: 'success',
-      response: result
+      response: rawTx
     })
-  } catch (err) {
-    return res.status(400).json({
-      code: 1,
-      message: err.message,
-    });
+
+  } else { //when contract method is view function
+    try {
+      result = await checkMethod.call();
+      return res.status(200).json({
+        code: 0,
+        message: 'success',
+        response: result
+      })
+    } catch (err) {
+      return res.status(400).json({
+        code: 1,
+        message: err.message,
+      });
+    }
   }
 });
-
 
 app.listen(8080, async () => {
   console.log("Express listening 8080");
@@ -169,9 +167,4 @@ function getBytecode(web3, abi, methodName, params) {
 
   const bytecode = functionSelector.concat(encodeParamters);
   return bytecode;
-}
-
-async function getValue(web3, contract, name) {
-  const result = await rootchainContract.methods[name]().call();
-  return result;
 }

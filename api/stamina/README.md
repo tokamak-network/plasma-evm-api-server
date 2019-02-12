@@ -11,12 +11,14 @@
 - [Stamina 잔량 확인](https://github.com/Onther-Tech/plasma-evm-api-server/blob/master/api/stamina/README.md#getStamina)
 
 
+함수 실행 시나리오: init -> deposit -> setDelegator
+
 ## init
 init은 스태미나를 사용하기전 초기 값들을 세팅하는 함수이다. 세팅되어야 할 초기값은 최소 예치량, 회복주기, 인출기간이 있다.
 
 ```shell
 curl "/api/stamina/<method>"
-  -X POST
+  -X GET
   -H "Content-Type: application/json; charset=utf-8"
   -d "{
         'params': {
@@ -59,10 +61,10 @@ method | 호출 할 메소드 명 | "init"
 
 Parameter |  Description | Example
 --------- |  ----------- | -----------
-params | init 파라미터 | ['1e17', 10, 30]
-params.minDeposit |  최소 예치량 | '1e17'
-params.recoveryEpoch |  회복 주기 | '10'
-params.withdrawalDelay |  인출 기간 | '30'
+params | init 파라미터 | [1e17, 10, 30]
+params.minDeposit |  최소 예치량 | 1e17
+params.recoveryEpoch |  회복 주기 | 10
+params.withdrawalDelay |  인출 기간 | 30
 msg | msg 파라미터 | ['0x491c9a23db85623eed455a8efdd6aba9b911c5df']
 msg.from |  owner 계정 | '0x491c9a23db85623eed455a8efdd6aba9b911c5df'
 msg.gas | gas비 | '2e6'
@@ -86,7 +88,7 @@ Delegatee가 수수료를 대신 납부해 줄 Delegator를 지정하는 과정
 
 ```shell
 curl "/api/stamina/<method>"
-  -X POST
+  -X GET
   -H "Content-Type: application/json; charset=utf-8"
   -d "{
         'params': {
@@ -149,7 +151,7 @@ Tx
 수수료를 대납할 때 사용될 금액을 delegatee에 예치시키는 과정
 ```shell
 curl "/api/stamina/<method>"
-  -X POST
+  -X GET
   -H "Content-Type: application/json; charset=utf-8"
   -d "{
         'params' : {
@@ -209,7 +211,7 @@ Tx
 
 ```shell
 curl "/api/stamina/<method>"
-  -X POST
+  -X GET
   -H "Content-Type: application/json; charset=utf-8"
   -d "{
         'params': {
@@ -219,7 +221,7 @@ curl "/api/stamina/<method>"
          'msg': {
            'from': <address>
          }
-      }"
+      }" 
 ```
 
 > 위의 명령은 아래의 JSON 객체를 리턴한다:
@@ -230,7 +232,7 @@ curl "/api/stamina/<method>"
   "message": "<String>",
   "response":
     {
-      "txhash" : "<String>"
+      "rawTx" : "<String>"
     }  
 }
 ```
@@ -266,123 +268,6 @@ Tx
 </aside> -->
 
 
-## addStamina
-// 보류
-```shell
-curl "/api/stamina/<method>"
-  -X POST
-  -H "Content-Type: application/json; charset=utf-8"
-  -d "{
-        'from': <address>
-        'params' : {
-          'to': <address>,
-          'value': <String>
-         }
-      }"
-```
-
-> 위의 명령은 아래의 JSON 객체를 리턴한다:
-
-```json
-{
-  "code": "<Error_Code>",
-  "message": "<String>",
-  "response":
-    {
-      "txhash" : "<String>"
-    }  
-}
-```
-
-### HTTP Request
-
-`POST /api/stamina/<method>`
-
-### URL Parameters
-
-Parameter |  Description | Example
---------- |  ----------- | -----------
-method | 호출 할 함수명 | "addStamina"
-
-### Query Parameters
-
-Parameter |  Description | Example
---------- |  ----------- | -----------
-params | addStamina 파라미터 | ['0x575f4B87A995b06cfD2A7D9370D1Fb2bc710fdc9','1e18']
-params.to |  Delegatee 주소 | '0x575f4B87A995b06cfD2A7D9370D1Fb2bc710fdc9'
-params.value | 추가로 예치할 금액 | '1e18'
-msg | msg 파라미터 | ['0x491c9a23db85623eed455a8efdd6aba9b911c5df']
-msg.from |  Delegatee에 스태미나를 추가 할 계정 | '0x491c9a23db85623eed455a8efdd6aba9b911c5df'
-
-### Response Parameters
-
-Parameter |  Description | Example
---------- |  ----------- | -----------
-txhash | transaction id | "0xcff7a350908f2401bb91bd9f0b5fc572fce0e5de0e3c3eaa3b9556e41453afb3"
-
-<!-- <aside class="success">
-Tx
-</aside> -->
-
-
-## subtractStamina
-// 보류
-```shell
-curl "/api/stamina/<method>"
-  -X POST
-  -H "Content-Type: application/json; charset=utf-8"
-  -d "{
-        'from': <address>
-        'params' : {
-          'to': <address>,
-          'value': <String>
-         }
-      }"
-```
-
-> 위의 명령은 아래의 JSON 객체를 리턴한다:
-
-```json
-{
-  "code": "<Error_Code>",
-  "message": "<String>",
-  "response":
-    {
-      "txhash" : "<String>"
-    }  
-}
-```
-
-### HTTP Request
-
-`POST /api/stamina/<method>`
-
-### URL Parameters
-
-Parameter |  Description | Example
---------- |  ----------- | -----------
-method | 호출 할 함수명 | "subtractStamina"
-
-### Query Parameters
-
-Parameter |  Description | Example
---------- |  ----------- | -----------
-from |  Delegatee에 스태미나를 추가 할 계정 | '0x491c9a23db85623eed455a8efdd6aba9b911c5df'
-params | deposit 파라미터 | ['0x575f4B87A995b06cfD2A7D9370D1Fb2bc710fdc9','1e18']
-params.to |  Delegatee 주소 | '0x575f4B87A995b06cfD2A7D9370D1Fb2bc710fdc9'
-params.value | 추가로 예치할 금액 | '1e18'
-
-### Response Parameters
-
-Parameter |  Description | Example
---------- |  ----------- | -----------
-txhash | transaction id | "0xcff7a350908f2401bb91bd9f0b5fc572fce0e5de0e3c3eaa3b9556e41453afb3"
-
-<!-- <aside class="success">
-Tx
-</aside> -->
-
-
 // Getter
 ## getDelegatee
 
@@ -390,8 +275,14 @@ Tx
 
 ```shell
 curl "/api/stamina/<method>"
+  -X GET
+  -H "Content-Type: application/json; charset=utf-8"
+  -d "{
+        'params': {
+          'delegator': <address>          
+         }
+      }" 
 ```
-
 > 위의 명령은 아래의 JSON 객체를 리턴한다:
 
 ```json
@@ -410,14 +301,14 @@ curl "/api/stamina/<method>"
 
 ### HTTP Request
 
-`GET /api/tokens/<method>/<delegator>`
+`GET /api/tokens/<method>`
 
 ### URL Parameters
 
 Parameter |  Description | Example
 --------- |  ----------- | -----------
-method | method 명 | getDelegatee
-delegator | delegator 주소 | "0x491c9a23db85623eed455a8efdd6aba9b911c5df"
+params | getDelegatee 파라미터 | ['0x491c9a23db85623eed455a8efdd6aba9b911c5df']
+params.delegator | delegator 주소 | "0x491c9a23db85623eed455a8efdd6aba9b911c5df"
 
 
 ### Response Parameters
@@ -434,7 +325,14 @@ r.delegatee | delegatee의 주소 | "0x575f4B87A995b06cfD2A7D9370D1Fb2bc710fdc9"
 이 요청은 해당 delegatee의 현재 stamina양을 조회한다.
 
 ```shell
-curl "/api/stamina/<method>/<delegatee>"
+curl "/api/stamina/<method>"
+  -X GET
+  -H "Content-Type: application/json; charset=utf-8"
+  -d "{
+        'params': {
+          'delegatee': <address>          
+         }
+      }" 
 ```
 
 > 위의 명령은 아래의 JSON 객체를 리턴한다:
@@ -455,14 +353,14 @@ curl "/api/stamina/<method>/<delegatee>"
 
 ### HTTP Request
 
-`GET /api/tokens/<method>/<delegatee>`
+`GET /api/tokens/<method>/`
 
 ### URL Parameters
 
 Parameter |  Description | Example
 --------- |  ----------- | -----------
-method | method 명 | getStamina
-delegatee | 스태미나를 확인할 delegatee | "0x491c9a23db85623eed455a8efdd6aba9b911c5df"
+params | getStamina 파라미터 | ['0x491c9a23db85623eed455a8efdd6aba9b911c5df']
+params.delegator | delegatee 주소 | "0x491c9a23db85623eed455a8efdd6aba9b911c5df"
 
 
 ### Response Parameters
