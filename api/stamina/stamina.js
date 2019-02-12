@@ -14,7 +14,7 @@ const abi = JSON.parse(fs.readFileSync(abiPath).toString()).abi;
 const contract_address = "0x000000000000000000000000000000000000dead";
 const contract = new web3.eth.Contract(abi, contract_address);
 
-const app = express.Router();
+const app = express();
 
 app.use(express.json());
 
@@ -132,6 +132,12 @@ app.get('/api/stamina/:method', async(req, res, next) => {
     } 
   }
 });
+
+
+app.listen(8080, async () => {
+  console.log("Express listening 8080");
+});
+
 
 function getBytecode(web3, abi, methodName, params) {
   let method;
