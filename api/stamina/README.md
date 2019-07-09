@@ -148,7 +148,8 @@ Tx
 
 
 ## Deposit
-수수료를 대납할 때 사용될 금액을 delegatee에 예치시키는 과정
+수수료를 대납할 때 사용될 금액을 delegatee에 예치시키는 과정.<br>
+Operator가 자기 자신에게 Deposit 하거나, 다른 User의 Stamina 생성을위해 대신 Deposit 해줄 수 있다.
 ```shell
 curl "/api/stamina/<method>"
   -X GET
@@ -191,8 +192,8 @@ method | 호출 할 함수명 | "deposit"
 
 Parameter |  Description | Example
 --------- |  ----------- | -----------
-params | deposit 파라미터 | ['0x575f4B87A995b06cfD2A7D9370D1Fb2bc710fdc9']
-params.to |  Delegatee 주소(수수료 대납 계정) | '0x575f4B87A995b06cfD2A7D9370D1Fb2bc710fdc9'
+params | deposit 파라미터 | ['0x491c9a23db85623eed455a8efdd6aba9b911c5df']
+params.to |  Delegatee 주소(수수료 대납 계정) | '0x491c9a23db85623eed455a8efdd6aba9b911c5df'
 msg | msg 파라미터 | ['0x491c9a23db85623eed455a8efdd6aba9b911c5df','1e18']
 msg.from |  Delegatee에 스태미나를 예치시킬 계정 | '0x491c9a23db85623eed455a8efdd6aba9b911c5df'
 msg.value | 스태미나로 예치할 금액의 양 | '1e18'
